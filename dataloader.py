@@ -17,7 +17,7 @@ class create_data(object):
         self.data_path = data_path
         self.pic_path = data_path.split('/')[1]
 
-    def split_data(self, train_fraction, df_schema, seed=23):
+    def split_data(self, train_fraction, df_schema, seed=84):
         '''
         Splits data using Python's random seed for reproducibility.
 
@@ -26,7 +26,7 @@ class create_data(object):
         Inputs: 
         train_fraction = decimal value 
         df_schema = the column headers
-        seed = random seed for reproducibility (default: 42)
+        seed = random seed for reproducibility 
 
         Outputs:
         training_set, validation_set = pandas dataframes
@@ -37,27 +37,30 @@ class create_data(object):
 
         # Set the seed and generate indices
         random.seed(seed)
-        indices = list(range(total_rows))
+        indices = list(range(1, total_rows + 1))  # Adjust for row indexing starting at 1
         random.shuffle(indices)
 
         train_size = int(total_rows * train_fraction)
         train_indices = indices[:train_size]
         valid_indices = indices[train_size:]
 
-        train_indices_str = ','.join([str(i + 1) for i in train_indices])  # Assuming row indexing starts at 1
+        # Efficiently fetching rows based on shuffled indices
+        train_indices_str = ','.join(map(str, train_indices))
+        valid_indices_str = ','.join(map(str, valid_indices))
+
         cursor.execute(f"SELECT * FROM {self.table_name} WHERE rowid IN ({train_indices_str});")
         training_set = cursor.fetchall()
-
-        valid_indices_str = ','.join([str(i + 1) for i in valid_indices])  # Assuming row indexing starts at 1
         cursor.execute(f"SELECT * FROM {self.table_name} WHERE rowid IN ({valid_indices_str});")
         validation_set = cursor.fetchall()
 
         cursor.close()
 
+        # Creating DataFrames
         training_set = pd.DataFrame(training_set, columns=df_schema)
         validation_set = pd.DataFrame(validation_set, columns=df_schema)
 
         return training_set, validation_set
+
 
     # def split_data(self, train_fraction, df_schema):
     #     '''

@@ -1,5 +1,7 @@
 # Training a Pizza Slice Angle Detector
 
+**Runnable notebook: `pizza_walkthrough.ipynb`**
+
 
 ```python
 ## Define imports
@@ -21,6 +23,12 @@ import matplotlib.pyplot as plt
 from torchvision.transforms import v2
 
 ```
+
+    /home/sandippanesar/anaconda3/envs/llm_env/lib/python3.10/site-packages/torchvision/datapoints/__init__.py:12: UserWarning: The torchvision.datapoints and torchvision.transforms.v2 namespaces are still Beta. While we do not expect major breaking changes, some APIs may still change according to user feedback. Please submit any feedback you may have in this issue: https://github.com/pytorch/vision/issues/6753, and you can also check out https://github.com/pytorch/vision/issues/7319 to learn more about the APIs that we suspect might involve future changes. You can silence this warning by calling torchvision.disable_beta_transforms_warning().
+      warnings.warn(_BETA_TRANSFORMS_WARNING)
+    /home/sandippanesar/anaconda3/envs/llm_env/lib/python3.10/site-packages/torchvision/transforms/v2/__init__.py:54: UserWarning: The torchvision.datapoints and torchvision.transforms.v2 namespaces are still Beta. While we do not expect major breaking changes, some APIs may still change according to user feedback. Please submit any feedback you may have in this issue: https://github.com/pytorch/vision/issues/6753, and you can also check out https://github.com/pytorch/vision/issues/7319 to learn more about the APIs that we suspect might involve future changes. You can silence this warning by calling torchvision.disable_beta_transforms_warning().
+      warnings.warn(_BETA_TRANSFORMS_WARNING)
+
 
 ## Load Data from SQL Database and Create Train-Test Split
 
@@ -214,7 +222,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg1['keypoints'])}")
     Angle of slice: 180.0
 
 
-    /home/sandippanesar/Desktop/pizza_angle_prediction/dataloader.py:179: RuntimeWarning: divide by zero encountered in double_scalars
+    /home/sandippanesar/Desktop/pizza_angle_prediction/dataloader.py:182: RuntimeWarning: divide by zero encountered in double_scalars
       m = (points[3] - points[2]) / (points[1] - points[0])
 
 
@@ -326,26 +334,26 @@ optimizer2 = torch.optim.Adam(model2.parameters(), lr=0.001)
 model.train_model(train_loader, criterion, optimizer, num_epochs, device)
 ```
 
-    Epoch [1/20], Loss: 96.6075
-    Epoch [2/20], Loss: 89.4517
-    Epoch [3/20], Loss: 77.4442
-    Epoch [4/20], Loss: 55.2641
-    Epoch [5/20], Loss: 66.6324
-    Epoch [6/20], Loss: 63.7445
-    Epoch [7/20], Loss: 58.3330
-    Epoch [8/20], Loss: 44.8522
-    Epoch [9/20], Loss: 65.6575
-    Epoch [10/20], Loss: 62.5134
-    Epoch [11/20], Loss: 60.9977
-    Epoch [12/20], Loss: 45.9365
-    Epoch [13/20], Loss: 64.2656
-    Epoch [14/20], Loss: 58.3298
-    Epoch [15/20], Loss: 60.1609
-    Epoch [16/20], Loss: 52.7741
-    Epoch [17/20], Loss: 53.6427
-    Epoch [18/20], Loss: 59.5858
-    Epoch [19/20], Loss: 45.5805
-    Epoch [20/20], Loss: 45.5334
+    Epoch [1/20], Loss: 84.4678
+    Epoch [2/20], Loss: 95.0840
+    Epoch [3/20], Loss: 65.2747
+    Epoch [4/20], Loss: 70.4862
+    Epoch [5/20], Loss: 43.1412
+    Epoch [6/20], Loss: 81.0602
+    Epoch [7/20], Loss: 62.0612
+    Epoch [8/20], Loss: 56.8554
+    Epoch [9/20], Loss: 66.5791
+    Epoch [10/20], Loss: 61.6216
+    Epoch [11/20], Loss: 54.3033
+    Epoch [12/20], Loss: 59.8105
+    Epoch [13/20], Loss: 58.7050
+    Epoch [14/20], Loss: 63.7697
+    Epoch [15/20], Loss: 60.3706
+    Epoch [16/20], Loss: 43.5193
+    Epoch [17/20], Loss: 51.8487
+    Epoch [18/20], Loss: 49.6787
+    Epoch [19/20], Loss: 50.4530
+    Epoch [20/20], Loss: 45.2872
     Finished Training
 
 
@@ -362,26 +370,26 @@ model.train_model(train_loader, criterion, optimizer, num_epochs, device)
 model2.train_model(train_loader, criterion, optimizer2, num_epochs, device)
 ```
 
-    Epoch [1/20], Loss: 82.3577
-    Epoch [2/20], Loss: 88.4738
-    Epoch [3/20], Loss: 98.1546
-    Epoch [4/20], Loss: 71.0275
-    Epoch [5/20], Loss: 66.9632
-    Epoch [6/20], Loss: 57.9918
-    Epoch [7/20], Loss: 85.6712
-    Epoch [8/20], Loss: 79.7051
-    Epoch [9/20], Loss: 68.0050
-    Epoch [10/20], Loss: 70.7276
-    Epoch [11/20], Loss: 63.1107
-    Epoch [12/20], Loss: 55.3681
-    Epoch [13/20], Loss: 54.8978
-    Epoch [14/20], Loss: 56.7542
-    Epoch [15/20], Loss: 54.8794
-    Epoch [16/20], Loss: 57.0465
-    Epoch [17/20], Loss: 51.5654
-    Epoch [18/20], Loss: 50.2793
-    Epoch [19/20], Loss: 55.0557
-    Epoch [20/20], Loss: 51.1545
+    Epoch [1/20], Loss: 97.0534
+    Epoch [2/20], Loss: 55.9691
+    Epoch [3/20], Loss: 63.4243
+    Epoch [4/20], Loss: 58.8003
+    Epoch [5/20], Loss: 54.4927
+    Epoch [6/20], Loss: 66.8074
+    Epoch [7/20], Loss: 51.8898
+    Epoch [8/20], Loss: 72.6757
+    Epoch [9/20], Loss: 54.4850
+    Epoch [10/20], Loss: 52.1390
+    Epoch [11/20], Loss: 50.5206
+    Epoch [12/20], Loss: 60.1279
+    Epoch [13/20], Loss: 61.5077
+    Epoch [14/20], Loss: 47.3993
+    Epoch [15/20], Loss: 50.4702
+    Epoch [16/20], Loss: 47.2189
+    Epoch [17/20], Loss: 60.2534
+    Epoch [18/20], Loss: 53.8989
+    Epoch [19/20], Loss: 43.3720
+    Epoch [20/20], Loss: 47.8063
     Finished Training
 
 
@@ -403,9 +411,9 @@ print('-'*50)
 print(f'Performance of second model on test dataset (average loss): {e2}')
 ```
 
-    Performance of first model on test dataset (average loss): 102.19229096475998
+    Performance of first model on test dataset (average loss): 74.98613491133673
     --------------------------------------------------
-    Performance of second model on test dataset (average loss): 75.57393738579673
+    Performance of second model on test dataset (average loss): 103.807837380934
 
 
 ## Visualize the Predictions on Untransformed Validation Data
@@ -435,7 +443,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m1_preds_rescaled)}")
     
 
 
-    Angle of slice: 67.53800581619502
+    Angle of slice: 140.22932220776502
 
 
 
@@ -453,7 +461,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds_rescaled)}")
     
 
 
-    Angle of slice: 61.512314946666244
+    Angle of slice: 85.51200167739077
 
 
 ## Conclusions
