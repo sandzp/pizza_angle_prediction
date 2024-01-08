@@ -468,9 +468,9 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds_rescaled)}")
 
 ## Conclusions
 
-- Both models perform generally the same.
-- On the test dataset the predicted angle is somewhat correct, despite the keypoints not being correct. 
-
+- Metrics wise, the model without dropout performs better.
+- Despite a very limited training sample, a neural network with a keypoint prediction layer can be successfully trained.
+- On the test dataset the predicted angle for the second image is somewhat correct, despite the keypoints not being correct. 
 
 ## Improvements
 
