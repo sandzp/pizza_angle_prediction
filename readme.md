@@ -4,6 +4,8 @@
 ```python
 ## Define imports
 
+## Packages/environment contained in "requirements.yml"
+
 ## See 'dataloader.py' for custom dataloader class
 from dataloader import create_data, PizzaDataset
 ## See 'model.py' for custom model class
@@ -299,7 +301,7 @@ Train model for 20 epochs. Might be overfit given size of training dataset.
 
 ```python
 criterion = nn.L1Loss()
-# device = 'cuda:0'
+# device = 'cuda:0' ## If you have large enough GPU can uncomment this
 device = 'cpu'
 num_epochs = 20
 
