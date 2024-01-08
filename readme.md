@@ -21,12 +21,6 @@ from torchvision.transforms import v2
 
 ```
 
-    /home/sandippanesar/anaconda3/envs/llm_env/lib/python3.10/site-packages/torchvision/datapoints/__init__.py:12: UserWarning: The torchvision.datapoints and torchvision.transforms.v2 namespaces are still Beta. While we do not expect major breaking changes, some APIs may still change according to user feedback. Please submit any feedback you may have in this issue: https://github.com/pytorch/vision/issues/6753, and you can also check out https://github.com/pytorch/vision/issues/7319 to learn more about the APIs that we suspect might involve future changes. You can silence this warning by calling torchvision.disable_beta_transforms_warning().
-      warnings.warn(_BETA_TRANSFORMS_WARNING)
-    /home/sandippanesar/anaconda3/envs/llm_env/lib/python3.10/site-packages/torchvision/transforms/v2/__init__.py:54: UserWarning: The torchvision.datapoints and torchvision.transforms.v2 namespaces are still Beta. While we do not expect major breaking changes, some APIs may still change according to user feedback. Please submit any feedback you may have in this issue: https://github.com/pytorch/vision/issues/6753, and you can also check out https://github.com/pytorch/vision/issues/7319 to learn more about the APIs that we suspect might involve future changes. You can silence this warning by calling torchvision.disable_beta_transforms_warning().
-      warnings.warn(_BETA_TRANSFORMS_WARNING)
-
-
 ## Load Data from SQL Database and Create Train-Test Split
 
 
@@ -41,7 +35,9 @@ Uses a combination of custom functions and those from the Torch library.
 
 The rescale function also rescales the label coordinates.
 
-NB: Due to time constraints, I decided to just normalize the image dimensions of each image. In some instances the aspect ratios are altered, which potentially causes a change in the angle of the pizza slice. Given more time, I would work on a solution to this. 
+NB: Due to time constraints, I decided to just normalize the image dimensions of each image. In some instances the aspect ratios are altered, which potentially causes a change in the angle of the pizza slice. 
+
+Inference can be run on the normalized data, and there is a function in the dataloader class ('transform_pred_to_normal') which rescales the keypoints back to the original height and width of the image before pre-processing.
 
 
 ```python
@@ -128,22 +124,22 @@ train
     </tr>
     <tr>
       <th>2</th>
+      <td>893981</td>
+      <td>pizza3.jpg</td>
+      <td>1547</td>
+      <td>430</td>
+      <td>1466</td>
+      <td>420</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
       <td>162132</td>
       <td>pizza4.jpg</td>
       <td>270</td>
       <td>409</td>
       <td>325</td>
       <td>399</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>759454</td>
-      <td>pizza2.jpg</td>
-      <td>2694</td>
-      <td>1586</td>
-      <td>2544</td>
-      <td>1484</td>
       <td>None</td>
     </tr>
   </tbody>
@@ -163,7 +159,7 @@ NB: Note Y-axis is flipped when interpreting printed angle.
 eg0 = transformed_train_dataset.__getitem__(0)
 eg0_u = untransformed_train_dataset.__getitem__(0)
 
-dl.visualize_matrix_with_coordinates(eg0_u['image'], eg0_u['keypoints'])
+dl.visualize_matrix_with_coordinates(eg0_u['image'], eg0_u['keypoints'], flip_y=False)
 
 print(f"Angle of slice: {dl.calculate_clockwise_angle(eg0['keypoints'])}")
 ```
@@ -181,7 +177,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg0['keypoints'])}")
 ```python
 ## Transformed Image
 
-dl.visualize_matrix_with_coordinates(eg0['image'],eg0['keypoints'])
+dl.visualize_matrix_with_coordinates(eg0['image'],eg0['keypoints'], flip_y=False)
 
 print(f"Angle of slice: {dl.calculate_clockwise_angle(eg0_u['keypoints'])}")
 ```
@@ -215,7 +211,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg1['keypoints'])}")
     Angle of slice: 180.0
 
 
-    /home/sandippanesar/Desktop/pizza/dataloader.py:123: RuntimeWarning: divide by zero encountered in double_scalars
+    /home/sandippanesar/Desktop/pizza_angle_prediction/dataloader.py:179: RuntimeWarning: divide by zero encountered in double_scalars
       m = (points[3] - points[2]) / (points[1] - points[0])
 
 
@@ -223,7 +219,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg1['keypoints'])}")
 ```python
 ## Transformed Image
 
-dl.visualize_matrix_with_coordinates(eg1['image'],eg1['keypoints'])
+dl.visualize_matrix_with_coordinates(eg1['image'],eg1['keypoints'], flip_y=False)
 print(f"Angle of slice: {dl.calculate_clockwise_angle(eg1_u['keypoints'])}")
 ```
 
@@ -243,7 +239,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg1_u['keypoints'])}")
 eg2 = transformed_train_dataset.__getitem__(2)
 eg2_u = untransformed_train_dataset.__getitem__(2)
 
-dl.visualize_matrix_with_coordinates(eg2_u['image'],eg2_u['keypoints'])
+dl.visualize_matrix_with_coordinates(eg2_u['image'],eg2_u['keypoints'], flip_y=False)
 print(f"Angle of slice: {dl.calculate_clockwise_angle(eg2['keypoints'])}")
 ```
 
@@ -253,14 +249,14 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg2['keypoints'])}")
     
 
 
-    Angle of slice: 105.24802021373586
+    Angle of slice: 80.6524221903351
 
 
 
 ```python
 ## Transformed Image
 
-dl.visualize_matrix_with_coordinates(eg2['image'],eg2['keypoints'])
+dl.visualize_matrix_with_coordinates(eg2['image'],eg2['keypoints'], flip_y=False)
 print(f"Angle of slice: {dl.calculate_clockwise_angle(eg2['keypoints'])}")
 ```
 
@@ -270,7 +266,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg2['keypoints'])}")
     
 
 
-    Angle of slice: 105.24802021373586
+    Angle of slice: 80.6524221903351
 
 
 ## Create DataLoader Class For Datasets
@@ -278,6 +274,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(eg2['keypoints'])}")
 
 ```python
 train_loader = DataLoader(transformed_train_dataset, batch_size=1, shuffle=True)
+untransformed_test_dataset = PizzaDataset(valid, './data/images')
 transformed_test_dataset = PizzaDataset(valid, './data/images', transforms)
 test_loader = DataLoader(transformed_test_dataset, batch_size=1, shuffle=True)
 ```
@@ -326,26 +323,26 @@ optimizer2 = torch.optim.Adam(model2.parameters(), lr=0.001)
 model.train_model(train_loader, criterion, optimizer, num_epochs, device)
 ```
 
-    Epoch [1/20], Loss: 144.4762
-    Epoch [2/20], Loss: 72.1675
-    Epoch [3/20], Loss: 93.6804
-    Epoch [4/20], Loss: 63.8277
-    Epoch [5/20], Loss: 74.3124
-    Epoch [6/20], Loss: 44.3223
-    Epoch [7/20], Loss: 54.4706
-    Epoch [8/20], Loss: 55.0200
-    Epoch [9/20], Loss: 52.1544
-    Epoch [10/20], Loss: 48.5876
-    Epoch [11/20], Loss: 60.3026
-    Epoch [12/20], Loss: 42.6375
-    Epoch [13/20], Loss: 46.7932
-    Epoch [14/20], Loss: 48.9535
-    Epoch [15/20], Loss: 43.0898
-    Epoch [16/20], Loss: 44.5996
-    Epoch [17/20], Loss: 42.0674
-    Epoch [18/20], Loss: 51.1178
-    Epoch [19/20], Loss: 40.1112
-    Epoch [20/20], Loss: 70.7763
+    Epoch [1/20], Loss: 96.6075
+    Epoch [2/20], Loss: 89.4517
+    Epoch [3/20], Loss: 77.4442
+    Epoch [4/20], Loss: 55.2641
+    Epoch [5/20], Loss: 66.6324
+    Epoch [6/20], Loss: 63.7445
+    Epoch [7/20], Loss: 58.3330
+    Epoch [8/20], Loss: 44.8522
+    Epoch [9/20], Loss: 65.6575
+    Epoch [10/20], Loss: 62.5134
+    Epoch [11/20], Loss: 60.9977
+    Epoch [12/20], Loss: 45.9365
+    Epoch [13/20], Loss: 64.2656
+    Epoch [14/20], Loss: 58.3298
+    Epoch [15/20], Loss: 60.1609
+    Epoch [16/20], Loss: 52.7741
+    Epoch [17/20], Loss: 53.6427
+    Epoch [18/20], Loss: 59.5858
+    Epoch [19/20], Loss: 45.5805
+    Epoch [20/20], Loss: 45.5334
     Finished Training
 
 
@@ -362,26 +359,26 @@ model.train_model(train_loader, criterion, optimizer, num_epochs, device)
 model2.train_model(train_loader, criterion, optimizer2, num_epochs, device)
 ```
 
-    Epoch [1/20], Loss: 133.3856
-    Epoch [2/20], Loss: 77.6829
-    Epoch [3/20], Loss: 102.0402
-    Epoch [4/20], Loss: 76.0591
-    Epoch [5/20], Loss: 54.7393
-    Epoch [6/20], Loss: 47.0420
-    Epoch [7/20], Loss: 51.7843
-    Epoch [8/20], Loss: 52.8233
-    Epoch [9/20], Loss: 44.8576
-    Epoch [10/20], Loss: 44.1067
-    Epoch [11/20], Loss: 51.3694
-    Epoch [12/20], Loss: 42.2044
-    Epoch [13/20], Loss: 51.8401
-    Epoch [14/20], Loss: 51.4077
-    Epoch [15/20], Loss: 44.0286
-    Epoch [16/20], Loss: 38.4707
-    Epoch [17/20], Loss: 34.0659
-    Epoch [18/20], Loss: 29.4441
-    Epoch [19/20], Loss: 30.8783
-    Epoch [20/20], Loss: 33.0962
+    Epoch [1/20], Loss: 82.3577
+    Epoch [2/20], Loss: 88.4738
+    Epoch [3/20], Loss: 98.1546
+    Epoch [4/20], Loss: 71.0275
+    Epoch [5/20], Loss: 66.9632
+    Epoch [6/20], Loss: 57.9918
+    Epoch [7/20], Loss: 85.6712
+    Epoch [8/20], Loss: 79.7051
+    Epoch [9/20], Loss: 68.0050
+    Epoch [10/20], Loss: 70.7276
+    Epoch [11/20], Loss: 63.1107
+    Epoch [12/20], Loss: 55.3681
+    Epoch [13/20], Loss: 54.8978
+    Epoch [14/20], Loss: 56.7542
+    Epoch [15/20], Loss: 54.8794
+    Epoch [16/20], Loss: 57.0465
+    Epoch [17/20], Loss: 51.5654
+    Epoch [18/20], Loss: 50.2793
+    Epoch [19/20], Loss: 55.0557
+    Epoch [20/20], Loss: 51.1545
     Finished Training
 
 
@@ -403,27 +400,30 @@ print('-'*50)
 print(f'Performance of second model on test dataset (average loss): {e2}')
 ```
 
-    Performance of first model on test dataset (average loss): 44.73495858282969
+    Performance of first model on test dataset (average loss): 102.19229096475998
     --------------------------------------------------
-    Performance of second model on test dataset (average loss): 54.031345866847374
+    Performance of second model on test dataset (average loss): 75.57393738579673
 
 
-## Visualize the Predictions
+## Visualize the Predictions on Untransformed Validation Data
 
 
 ```python
 test_0 = transformed_test_dataset.__getitem__(0)
 m1_preds = model.predict(model, test_0['image'])
 m2_preds = model.predict(model2, test_0['image'])
+
+m1_preds_rescaled = dl.transform_pred_to_normal(m1_preds, (224,224), untransformed_test_dataset.__getitem__(0)['image'])
+m2_preds_rescaled = dl.transform_pred_to_normal(m2_preds, (224,224), untransformed_test_dataset.__getitem__(0)['image'])
 ```
 
 
 ```python
 ## Model 1
 
-dl.visualize_matrix_with_coordinates(test_0['image'],m1_preds, flip_y=False)
+dl.visualize_matrix_with_coordinates(untransformed_test_dataset.__getitem__(0)['image'], m1_preds_rescaled, flip_y=False)
 
-print(f"Angle of slice: {dl.calculate_clockwise_angle(m1_preds)}")
+print(f"Angle of slice: {dl.calculate_clockwise_angle(m1_preds_rescaled)}")
 ```
 
 
@@ -432,16 +432,16 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m1_preds)}")
     
 
 
-    Angle of slice: 137.75217896963937
+    Angle of slice: 67.53800581619502
 
 
 
 ```python
 ## Model 2
 
-dl.visualize_matrix_with_coordinates(test_0['image'],m2_preds, flip_y=False)
+dl.visualize_matrix_with_coordinates(untransformed_test_dataset.__getitem__(0)['image'], m2_preds_rescaled, flip_y=False)
 
-print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds)}")
+print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds_rescaled)}")
 ```
 
 
@@ -450,7 +450,7 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds)}")
     
 
 
-    Angle of slice: 138.44840610886317
+    Angle of slice: 61.512314946666244
 
 
 ## Conclusions
@@ -461,6 +461,5 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds)}")
 
 ## Improvements
 
-- Larger training set.
-- Devise another method to scale the images so that the angle is preserved despite the aspect ratio being tweaked. 
+- Larger training set. 
 - Potentially exploring different model architectures, pretrained models e.g. ResNet-50 etc. 
