@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import math
 import torch
+import random
 from torch.utils.data import Dataset
 
 class create_data(object):
@@ -16,15 +17,16 @@ class create_data(object):
         self.data_path = data_path
         self.pic_path = data_path.split('/')[1]
 
-    def split_data(self, train_fraction, df_schema):
+    def split_data(self, train_fraction, df_schema, seed=23):
         '''
-        Splits data based on a provided input split fraction
+        Splits data using Python's random seed for reproducibility.
 
         Returns train and valid sets as pandas DFs
 
         Inputs: 
         train_fraction = decimal value 
         df_schema = the column headers
+        seed = random seed for reproducibility (default: 42)
 
         Outputs:
         training_set, validation_set = pandas dataframes
@@ -32,15 +34,56 @@ class create_data(object):
         cursor = self.conn.cursor()
         cursor.execute(f"SELECT COUNT(*) FROM {self.table_name};")
         total_rows = cursor.fetchone()[0]
+
+        # Set the seed and generate indices
+        random.seed(seed)
+        indices = list(range(total_rows))
+        random.shuffle(indices)
+
         train_size = int(total_rows * train_fraction)
-        cursor.execute(f"SELECT * FROM {self.table_name} ORDER BY RANDOM() LIMIT {train_size};")
+        train_indices = indices[:train_size]
+        valid_indices = indices[train_size:]
+
+        train_indices_str = ','.join([str(i + 1) for i in train_indices])  # Assuming row indexing starts at 1
+        cursor.execute(f"SELECT * FROM {self.table_name} WHERE rowid IN ({train_indices_str});")
         training_set = cursor.fetchall()
-        cursor.execute(f"SELECT * FROM {self.table_name} ORDER BY RANDOM() LIMIT {total_rows - train_size} OFFSET {train_size};")
+
+        valid_indices_str = ','.join([str(i + 1) for i in valid_indices])  # Assuming row indexing starts at 1
+        cursor.execute(f"SELECT * FROM {self.table_name} WHERE rowid IN ({valid_indices_str});")
         validation_set = cursor.fetchall()
+
         cursor.close()
+
         training_set = pd.DataFrame(training_set, columns=df_schema)
         validation_set = pd.DataFrame(validation_set, columns=df_schema)
+
         return training_set, validation_set
+
+    # def split_data(self, train_fraction, df_schema):
+    #     '''
+    #     Splits data based on a provided input split fraction
+
+    #     Returns train and valid sets as pandas DFs
+
+    #     Inputs: 
+    #     train_fraction = decimal value 
+    #     df_schema = the column headers
+
+    #     Outputs:
+    #     training_set, validation_set = pandas dataframes
+    #     '''
+    #     cursor = self.conn.cursor()
+    #     cursor.execute(f"SELECT COUNT(*) FROM {self.table_name};")
+    #     total_rows = cursor.fetchone()[0]
+    #     train_size = int(total_rows * train_fraction)
+    #     cursor.execute(f"SELECT * FROM {self.table_name} ORDER BY RANDOM() LIMIT {train_size};")
+    #     training_set = cursor.fetchall()
+    #     cursor.execute(f"SELECT * FROM {self.table_name} ORDER BY RANDOM() LIMIT {total_rows - train_size} OFFSET {train_size};")
+    #     validation_set = cursor.fetchall()
+    #     cursor.close()
+    #     training_set = pd.DataFrame(training_set, columns=df_schema)
+    #     validation_set = pd.DataFrame(validation_set, columns=df_schema)
+    #     return training_set, validation_set
 
     def visualize_matrix(self, matrix):
         '''
@@ -109,6 +152,19 @@ class create_data(object):
             plt.gca().invert_yaxis()
 
         plt.show()
+
+    def transform_pred_to_normal(self, predictions, transform_size, original_image):
+        
+        h, w = transform_size
+        orig_h, orig_w = original_image.shape[:2]
+        
+        scale_x, scale_y = orig_w / w, orig_h / h
+
+        reversed_key_pts = np.array([predictions[0] * scale_x, predictions[1] * scale_x, 
+                                     predictions[2] * scale_y, predictions[3] * scale_y])
+
+        return reversed_key_pts
+
 
     def calculate_clockwise_angle(self, points):
         """
