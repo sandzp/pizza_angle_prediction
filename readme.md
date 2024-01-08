@@ -48,6 +48,8 @@ The rescale function also rescales the label coordinates.
 
 NB: Due to time constraints, I decided to just normalize the image dimensions of each image. In some instances the aspect ratios are altered, which potentially causes a change in the angle of the pizza slice. 
 
+To account for the change in angle that comes with the aspect ratios, once the predictions have been made by the trained model, the prediction coordinates are then transformed back to the coordinate space of the original image, which reflects the 'true' angle.
+
 Inference can be run on the normalized data, and there is a function in the dataloader class ('transform_pred_to_normal') which rescales the keypoints back to the original height and width of the image before pre-processing.
 
 
