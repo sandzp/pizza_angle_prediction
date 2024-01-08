@@ -461,6 +461,5 @@ print(f"Angle of slice: {dl.calculate_clockwise_angle(m2_preds_rescaled)}")
 
 ## Improvements
 
-- Larger training set.
-- Devise another method to scale the images so that the angle is preserved despite the aspect ratio being tweaked. 
+- Larger training set. 
 - Potentially exploring different model architectures, pretrained models e.g. ResNet-50 etc. 
