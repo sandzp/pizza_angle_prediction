@@ -13,7 +13,6 @@ from model import KeypointDetector
 ## See 'image_transforms.py' for custom image transforms
 from image_transforms import *
 
-
 ## Some generic functions
 from torchvision import transforms, utils
 from torch.utils.data import DataLoader
@@ -24,6 +23,8 @@ from torchvision.transforms import v2
 ```
 
 ## Load Data from SQL Database and Create Train-Test Split
+
+The split function contains a seed method to randomly and deterministically split the data.
 
 
 ```python
